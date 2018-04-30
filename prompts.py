@@ -41,6 +41,15 @@ def _prompt_list(title, list, default_index):
   return value
 
 def _get_low_price(mid_price, high_price):
+  """
+  >>> _get_low_price(3, 2)
+  ValueError: mid price cannot be higher than high price
+  >>> _get_low_price(4,6)
+  2
+  >>> _get_low_price(.04,.06)
+  0.020000000000000004
+  """
+
   if(mid_price > high_price): raise ValueError("mid price cannot be higher than high price")
   return ((2 * mid_price) - high_price)
 
