@@ -10,10 +10,10 @@ def send_trade_list(
   trade_count,
   auth=None):
 
-  """function takes in intial info trading pair (BTC-USD), side (buy or 
+  """function takes in initial info trading pair (BTC-USD), side (buy or 
   sell), first trade price, minimum trade value, increase in price per trade,
   increase in value per trade, the number of trades and an authorization
-  token and lists a corrosponding sequence of trades on GDAX through there
+  token and lists a corrosponding sequence of trades on GDAX through their
   API
   
   To do's : write function to accept class object instead of each item
@@ -79,7 +79,7 @@ def send_trade_list(
 
 def adjust(pair, side, first_trade_size, size_increase, 
     first_trade_price, price_change, trade_count ):
-    '''Addes cancelation of trades listed between range given to auth_and_
+    '''Adds cancellation of trades listed between range given to auth_and_
     list_trades funtion (if multiple strategies are in effect, this will
     cancel all orders from any strategy. 
     '''

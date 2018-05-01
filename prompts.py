@@ -1,6 +1,7 @@
 import os
 import readline
 from pick import pick
+from trading_terms import TradingTerms
 
 def _input_default(prompt, default):
   def hook():
@@ -40,10 +41,6 @@ def _prompt_list(title, list, default_index):
   print("\n"+title+"\n\n"+value+"\n\n")
   return value
 
-def _get_low_price(mid_price, high_price):
-  if(mid_price > high_price): raise ValueError("mid price cannot be higher than high price")
-  return ((2 * mid_price) - high_price)
-
 def show_intro():
   # display header and description of program intent
   print(
@@ -56,70 +53,65 @@ def show_intro():
   os.system('clear')
 
 def prompt_user():
-  #Prompts User for input to start algorithm, returns dictionary of selected values.
-  show_intro()
 
-  options = {}
+  tt = TradingTerms()
 
-  supported_pairs = ["BTC-USD", "ETH-USD", "LTC-USD", "BCH-USD", "BTC-ETH", "LTC-BTC", "BCH-BTC"]
-  selected_pair = _prompt_list(
+  tt.pair = _prompt_list(
     "What trading pair would you like to use?",
-    supported_pairs,
-    6
+    TradingTerms.supported_pairs,
+    TradingTerms.default_pair_index
   )
-
-  # split pair into pertinent parts
-  options.pair_start = selected_pair[:3]
-  options.pair_end = selected_pair[:4]
   
-  options.budget = _prompt_float(
+  tt.budget = _prompt_float(
     ("What is the value of {0} would you like to allocate in terms of {1}?").format(
-      options.pair_start,
-      options.pair_end
+      tt.pair_from,
+      tt.pair_to
     ),
     ".075"
   )
 
-  options.min_size = _prompt_float(
+  tt.first_size = _prompt_float(
     "What is the minimum trade size for this pair?",
     ".01"
   )
 
-  options.size_change = _prompt_float(
+  tt.size_change = _prompt_float(
     "How much should each trade in the sequence of buys and sells increase by?",
     ".000025"
   )
   
-  options.current_price = _prompt_float(
+  current_price = _prompt_float(
     ("What is the estimated price of {0} in terms of {1}?").format(
-      options.pair_start,
-      options.pair_end
+      tt.pair_from,
+      tt.pair_to
     ),
     ".15185"
   )
 
   use_current_price = _prompt_bool(
     ("Would you like to use {0} {1}/{2} as the the midpoint of the trading algorithm?").format(
-      options.current_price,
-      options.pair_end,
-      options.pair_start
+      current_price,
+      tt.pair_to,
+      tt.pair_from
     ),
     "y"
   )
   
   if not use_current_price:
-    options.mid_price = _prompt_float("What midpoint price would you like to use?")
+    tt.mid_price = _prompt_float("What midpoint price would you like to use?")
   else:
-    options.mid_price = options.current_price
+    tt.mid_price = current_price
   
-  options.high_price = _prompt_float(
+  tt.high_price = _prompt_float(
     "What is the highest price to be sold at?",
     ".3"
   )
 
-  options.low_price = _get_low_price(options.mid_price, options.high_price)
+  print("here are your selections:\n")
+  tt.toString()
+  print("\n\n")
 
-  return options
+  return tt
 
 def prompt_ready_to_trade():
   list_trades = _prompt_bool("Would you like trades to be listed?", "n")
