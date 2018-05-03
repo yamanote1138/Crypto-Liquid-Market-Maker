@@ -10,8 +10,8 @@ def run_main():
 
   prompts.show_intro()
   
-  # Get initial input for starting trading aglogrithm
-  trade_terms = prompts.prompt_user()
+  # Get initial input from user
+  trade_terms = prompts.prompt_trading_terms()
 
     # # not sure what this does
     # if trade_terms == -1:

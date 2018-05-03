@@ -38,13 +38,13 @@ class TradingTerms():
   def budget(self, value):
     self._budget = value
 
-  # add definition of first_size property here
+  # add definition of min_size property here
   @property
-  def first_size(self): return self._first_size
+  def min_size(self): return self._min_size
 
-  @first_size.setter
-  def first_size(self, value):
-    self._first_size = value
+  @min_size.setter
+  def min_size(self, value):
+    self._min_size = value
 
   # add definition of size_change property here
   @property
@@ -56,12 +56,13 @@ class TradingTerms():
     
   # add definition of low_price property here
   @property
-  def low_price(self): return self._low_price
+  def low_price(self):
+    if (self._mid_price is None):
+      raise ValueError('cannot compute low price, mid price not set')
+    if (self._high_price is None):
+      raise ValueError('cannot compute low price, high price not set')
+    return (2 * self._mid_price) - self._high_price
 
-  @low_price.setter
-  def low_price(self, value):
-    self._low_price = round(value, self._p_round)
-    
   # add definition of mid_price property here
   @property
   def mid_price(self): return self._mid_price
@@ -78,25 +79,17 @@ class TradingTerms():
   def high_price(self, value):
     self._high_price = round(value, self._p_round)
 
-  # add definition of high_price property here
-  @property
-  def computed_high_price(self):
-    if (self._low_price is None):
-      raise ValueError('cannot compute high price, low price not set')
-    if (self._mid_price is None):
-      raise ValueError('cannot compute high price, mid price not set')
-    return (2 * self.mid_price) - self._low_price
 
 
   def __init__(self):
     return
     # self.n = n_from_budget(
-    #   budget, first_size, size_change, low_price, self.high_price) 
+    #   budget, min_size, size_change, low_price, self.high_price) 
     # self.price_change = round(
     #   (self.high_price - mid_price ) /(self.n/2), self.p_round)
     
     # # Variables that will change for buy and sell sequences
-    # f_b_size = first_size + size_change 
+    # f_b_size = min_size + size_change 
     # f_b_price = mid_price - self.price_change
     # f_s_price = mid_price + self.price_change
     
@@ -104,23 +97,55 @@ class TradingTerms():
     # # traded, sequences will be added as trades execute. 
     # self.trading_sequences = []
     # self.trading_sequences.append(
-    #   {'side': 'sell', 'first_size': first_size,'first_price': f_s_price,
+    #   {'side': 'sell', 'min_size': min_size,'first_price': f_s_price,
     #     'n': self.n/2})
     # self.trading_sequences.append(
-    #   {'side': 'buy', 'first_size': f_b_size, 'first_price': f_b_price, 
+    #   {'side': 'buy', 'min_size': f_b_size, 'first_price': f_b_price, 
     #     'n': self.n/2})
       
     # self.new_sequences = self.trading_sequences
     # self.book = []
+
+  def get_max_trades(self):
+    '''Using a budget in terms of the denominator of a trading pair (USD for
+    BTC-USD), min_size and size_change of trade amounts, and a price range
+    for trade values in terms of low_price and high_price this function will 
+    give you the maximoum possible trades that can be used in a sequence of 
+    alternating increasing buy and sell trades. 
+    
+    >>> get_max_trades(193, .01, .005, 500, 1300)
+    8
+    '''
+
+    # ensure required properties are set
+    if (self._size_change is None): raise ValueError('size change not set')
+    if (self._high_price is None): raise ValueError('high price not set')
+    if (self._min_size is None): raise ValueError('min price not set')
+    if (self._budget is None): raise ValueError('budget not set')
+    
+    low_price = self.low_price()
+
+    # determine coefficients
+    A = 12 * self._size_change * self._mid_price
+    B = 3 * ( 
+      self._mid_price * ( 
+        4 * self._min_size - 3 * self._size_change) + self._size_change * self._low_price )
+    C = -3 * ( self._size_change * ( self._high_price - mid_price ) + 2 * self._budget ) 
+    
+    # grind it through quadratic formula
+    trades = ( - B + math.sqrt( B ** 2 - 4 * A * C))  / (2*A)
+
+    # double the result to account for both buys/sells
+    return 2 * int(trades)
   
   def toString(self):
     print(
       " from: \t\t\t{}\n".format(self.pair_from),
       "to: \t\t\t{}\n".format(self.pair_to),
       "budget: \t\t{}\n".format(self.budget),
-      "first_size: \t\t{}\n".format(self.first_size),
+      "min_size: \t\t{}\n".format(self.min_size),
       "size_change: \t\t{}\n".format(self.size_change),
-      # "low_price: \t\t{}\n".format(self.low_price),
+      "low_price: \t\t{}\n".format(self.low_price),
       "mid_price: \t\t{}\n".format(self.mid_price),
       "high_price: \t\t{}\n".format(self.high_price)
     )
@@ -137,7 +162,7 @@ class TradingTerms():
   #     self.book += trading.send_trade_list(
   #       self.pair, # pair
   #       i['side'], # side
-  #       i['first_size'], # first_trade_size
+  #       i['min_size'], # first_trade_size
   #       self.size_change*2, # size_increase
   #       i['first_price'], # first_trade_price
   #       self.price_change, #price_increase

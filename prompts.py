@@ -15,10 +15,10 @@ def _input_default(prompt, default):
 def _prompt_float(title, default):
   while True:
     try:
-      value = _input_default("\n"+title+"\n\n", default)
+      value = _input_default("\n"+title+"\n", default)
       value = float(value)
     except ValueError:
-      print("\nplease enter a valid float value (e.g. .01, 1.75)\n\n")
+      print("\nplease enter a valid float value (e.g. .01, 1.75)\n")
       continue
     else:
       break
@@ -26,14 +26,14 @@ def _prompt_float(title, default):
 
 def _prompt_bool(title, default):
   while True:
-    value = _input_default("\n"+title+"  (y/n)\n\n", default)
+    value = _input_default("\n"+title+" (y/n)\n", default)
     value = value.lower()
     if value=='y':
       return True
     elif value=='n':
       return False
     else:
-      print("\nplease type 'y' or 'n'\n\n")
+      print("\nplease type 'y' or 'n'\n")
       continue
 
 def _prompt_list(title, list, default_index):
@@ -52,7 +52,7 @@ def show_intro():
   # clear screen
   os.system('clear')
 
-def prompt_user():
+def prompt_trading_terms():
 
   tt = TradingTerms()
 
@@ -70,12 +70,12 @@ def prompt_user():
     ".075"
   )
 
-  tt.first_size = _prompt_float(
+  tt.min_size = _prompt_float(
     "What is the minimum trade size for this pair?",
     ".01"
   )
 
-  tt.size_change = _prompt_float(
+  tt.increment = _prompt_float(
     "How much should each trade in the sequence of buys and sells increase by?",
     ".000025"
   )
