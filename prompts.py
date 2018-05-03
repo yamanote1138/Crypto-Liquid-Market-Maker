@@ -75,7 +75,7 @@ def prompt_trading_terms():
     ".01"
   )
 
-  tt.increment = _prompt_float(
+  tt.size_change = _prompt_float(
     "How much should each trade in the sequence of buys and sells increase by?",
     ".000025"
   )

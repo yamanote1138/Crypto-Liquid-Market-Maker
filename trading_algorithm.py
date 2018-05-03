@@ -33,7 +33,7 @@ class TradingTerms():
     f_b_price = mid_price - self.price_change
     f_s_price = mid_price + self.price_change
     
-    # trading_sequences gives the variable info for each sequnce to be 
+    # trading_sequences gives the variable info for each sequence to be 
     # traded, sequences will be added as trades execute. 
     self.trading_sequences = []
     self.trading_sequences.append(
@@ -130,20 +130,4 @@ def print_review_of_trades(tt):
         tt.mid_price
       )
     ) 
-
-def n_from_mid_budget(budget, first_size, size_change, mid_price, last_price):
-  '''
-  Takes a budget, first_size, size_change, mid_price, and last_price which
-  could both be a high or low price. 
-  >>> n_from_mid_budget(60,.01,.01,900,500)
-  4.0
-  >>> ta.n_from_mid_budget(120,.01,.01,900,1300)
-  4.0
-  '''
-  
-  A = size_change*(mid_price+2*last_price)
-  B = 3*first_size*(
-    mid_price+last_price)-3*size_change*mid_price
-  C = (3*first_size-2*size_change)*(last_price-mid_price)-6*budget
-  return (-B + math.sqrt(B**2-4*A*C))/(2*A)
 
