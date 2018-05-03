@@ -11,7 +11,10 @@ def run_main():
   prompts.show_intro()
   
   # Get initial input from user
-  trade_terms = prompts.prompt_trading_terms()
+  terms = prompts.prompt_trading_terms()
+
+  # Show user their selections
+  prompts.show_trading_terms(terms)
 
     # # not sure what this does
     # if trade_terms == -1:

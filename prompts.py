@@ -107,11 +107,12 @@ def prompt_trading_terms():
     ".3"
   )
 
-  print("here are your selections:\n")
-  tt.toString()
-  print("\n\n")
-
   return tt
+
+def show_trading_terms(trading_terms):
+  print("here are your selections:\n")
+  trading_terms.toString()
+  print("\n\n")
 
 def prompt_ready_to_trade():
   list_trades = _prompt_bool("Would you like trades to be listed?", "n")

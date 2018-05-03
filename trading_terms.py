@@ -1,3 +1,5 @@
+import math
+
 class TradingTerms():
 
   supported_pairs = ["BTC-USD", "ETH-USD", "LTC-USD", "BCH-USD", "BTC-ETH", "LTC-BTC", "BCH-BTC"]
@@ -79,34 +81,9 @@ class TradingTerms():
   def high_price(self, value):
     self._high_price = round(value, self._p_round)
 
-
-
-  def __init__(self):
-    return
-    # self.n = n_from_budget(
-    #   budget, min_size, size_change, low_price, self.high_price) 
-    # self.price_change = round(
-    #   (self.high_price - mid_price ) /(self.n/2), self.p_round)
-    
-    # # Variables that will change for buy and sell sequences
-    # f_b_size = min_size + size_change 
-    # f_b_price = mid_price - self.price_change
-    # f_s_price = mid_price + self.price_change
-    
-    # # trading_sequences gives the variable info for each sequence to be 
-    # # traded, sequences will be added as trades execute. 
-    # self.trading_sequences = []
-    # self.trading_sequences.append(
-    #   {'side': 'sell', 'min_size': min_size,'first_price': f_s_price,
-    #     'n': self.n/2})
-    # self.trading_sequences.append(
-    #   {'side': 'buy', 'min_size': f_b_size, 'first_price': f_b_price, 
-    #     'n': self.n/2})
-      
-    # self.new_sequences = self.trading_sequences
-    # self.book = []
-
-  def get_max_trades(self):
+  # add definition of max_trades property here
+  @property
+  def max_trades(self):
     '''Using a budget in terms of the denominator of a trading pair (USD for
     BTC-USD), min_size and size_change of trade amounts, and a price range
     for trade values in terms of low_price and high_price this function will 
@@ -118,25 +95,36 @@ class TradingTerms():
     '''
 
     # ensure required properties are set
-    if (self._size_change is None): raise ValueError('size change not set')
-    if (self._high_price is None): raise ValueError('high price not set')
-    if (self._min_size is None): raise ValueError('min price not set')
-    if (self._budget is None): raise ValueError('budget not set')
+    if (self.size_change is None): raise ValueError('size change not set')
+    if (self.high_price is None): raise ValueError('high price not set')
+    if (self.min_size is None): raise ValueError('min price not set')
+    if (self.budget is None): raise ValueError('budget not set')
     
-    low_price = self.low_price()
+    # capturing into var to prevent duplicate recomputation, there's likely a better way to do this
+    low_price = self.low_price
 
     # determine coefficients
-    A = 12 * self._size_change * self._mid_price
+    A = 12 * self.size_change * self.mid_price
     B = 3 * ( 
-      self._mid_price * ( 
-        4 * self._min_size - 3 * self._size_change) + self._size_change * self._low_price )
-    C = -3 * ( self._size_change * ( self._high_price - mid_price ) + 2 * self._budget ) 
+      self.mid_price * ( 
+        4 * self.min_size - 3 * self.size_change) + self.size_change * low_price )
+    C = -3 * ( self.size_change * ( self.high_price - self.mid_price ) + 2 * self.budget ) 
     
     # grind it through quadratic formula
     trades = ( - B + math.sqrt( B ** 2 - 4 * A * C))  / (2*A)
 
     # double the result to account for both buys/sells
     return 2 * int(trades)
+
+  # add definition of price_change property here
+  @property
+  def price_change(self):
+    increment = (self.high_price - self.mid_price) / (self.max_trades / 2)
+    return round(increment, self._p_round)
+
+
+  def __init__(self):
+    return
   
   def toString(self):
     print(
@@ -147,31 +135,7 @@ class TradingTerms():
       "size_change: \t\t{}\n".format(self.size_change),
       "low_price: \t\t{}\n".format(self.low_price),
       "mid_price: \t\t{}\n".format(self.mid_price),
-      "high_price: \t\t{}\n".format(self.high_price)
+      "high_price: \t\t{}\n".format(self.high_price),
+      "max trades: \t\t{}\n".format(self.max_trades,
+      "max trades: \t\t{}\n".format(self.price_change)
     )
-
-
-  # def print_trades(self):
-  #   print_review_of_trades(self)
-
-  # def list_trades(self):
-  #   """Used to send trading sequences in new_sequences to be listed"""
-    
-  #   # Send each sequence in new_squences to GDAX and return orders to book
-  #   for i in self.new_sequences:
-  #     self.book += trading.send_trade_list(
-  #       self.pair, # pair
-  #       i['side'], # side
-  #       i['min_size'], # first_trade_size
-  #       self.size_change*2, # size_increase
-  #       i['first_price'], # first_trade_price
-  #       self.price_change, #price_increase
-  #       self.n/2 # trade_count
-  #     ) 
-        
-  #   # Empty new_sequence for future use
-  #   self.new_sequences = []
-    
-  #   start_websocket()
-    
-
